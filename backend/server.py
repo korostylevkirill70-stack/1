@@ -216,6 +216,11 @@ class TGStatParser:
     async def parse_page(self, category: str, content_type: str, page: int = 1) -> List[Dict[str, Any]]:
         """Parse a single page of TGStat for channels/chats"""
         try:
+            # If no browser (mock mode), return mock data
+            if not self.browser or not self.page:
+                self.logger.info(f"🔍 Mock mode: generating data for page {page}")
+                return self._generate_mock_data(category, page, content_type)
+                
             # Build URL for specific page
             if content_type == "channels":
                 url = f"https://tgstat.ru/channels"
