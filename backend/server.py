@@ -375,17 +375,44 @@ class TGStatParser:
             return self._generate_mock_data(category, page, content_type)
             
     def _generate_mock_data(self, category: str, page: int, content_type: str) -> List[Dict[str, Any]]:
-        """Generate mock data for development/testing"""
+        """Generate realistic mock data for development/testing"""
         mock_channels = []
+        
+        # Sample channel names based on category
+        channel_names = {
+            'crypto': ['CryptoNews', 'BitcoinAnalytics', 'DeFi Hub', 'Altcoin Signals', 'Blockchain Today', 'Crypto Insider', 'Digital Assets', 'Web3 News'],
+            'tech': ['TechCrunch', 'TechNews', 'AI Updates', 'DevNews', 'StartupLife', 'Programming', 'Silicon Valley', 'TechTrends'],
+            'news': ['Breaking News', 'World Today', 'Daily Updates', 'News Flash', 'Current Events', 'Headlines', 'News Digest', 'Live News'],
+            'business': ['Business Insider', 'Finance Today', 'Market News', 'Startup Hub', 'Investment Tips', 'Business World', 'Economy Updates', 'Trading Signals'],
+            'entertainment': ['Entertainment Hub', 'Movie News', 'Celebrity Updates', 'Music World', 'Pop Culture', 'Show Biz', 'Hollywood News', 'Entertainment Weekly']
+        }
+        
+        names_list = channel_names.get(category, ['Sample Channel 1', 'Sample Channel 2', 'Sample Channel 3', 'Sample Channel 4', 'Sample Channel 5', 'Sample Channel 6', 'Sample Channel 7', 'Sample Channel 8'])
+        
+        base_subscribers = [50000, 75000, 100000, 150000, 200000, 300000, 500000, 1000000]
+        
         for i in range(8):  # 8 channels per page
+            name_index = ((page - 1) * 8 + i) % len(names_list)
+            subscriber_base = base_subscribers[i] + (page - 1) * 10000 + random.randint(-5000, 15000)
+            
+            # Format subscriber count realistically
+            if subscriber_base >= 1000000:
+                formatted_subs = f"{subscriber_base // 1000000:.1f}M"
+            elif subscriber_base >= 1000:
+                formatted_subs = f"{subscriber_base // 1000:.1f}K"
+            else:
+                formatted_subs = str(subscriber_base)
+            
             mock_channels.append({
-                'name': f'{category.title()} {content_type[:-1].title()} {page}-{i+1}',
-                'link': f'https://t.me/channel_{category}_{page}_{i+1}',
-                'subscribers': f'{50000 + page * 1000 + i * 100}',
-                'description': f'Description for {category} channel {page}-{i+1}',
+                'name': f"{names_list[name_index]} {page}-{i+1}",
+                'link': f'https://t.me/{names_list[name_index].lower().replace(" ", "_")}_{page}_{i+1}',
+                'subscribers': formatted_subs,
+                'description': f'Quality {category} content and updates. Page {page}, item {i+1}',
                 'category': category,
                 'content_type': content_type
             })
+            
+        self.logger.info(f"📋 Generated {len(mock_channels)} mock channels for {category} category, page {page}")
         return mock_channels
         
     async def parse_channels(self, category: str, content_types: List[str], max_pages: int, task_id: str) -> List[Dict[str, Any]]:
