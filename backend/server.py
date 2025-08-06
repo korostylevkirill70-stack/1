@@ -167,6 +167,11 @@ class TGStatParser:
     async def get_total_pages(self, category: str, content_type: str, max_pages: int) -> int:
         """Get total number of pages available for parsing"""
         try:
+            # If no browser (mock mode), return max_pages
+            if not self.browser or not self.page:
+                self.logger.info(f"📊 Mock mode: returning max_pages {max_pages}")
+                return max_pages
+                
             # Build URL based on content type
             if content_type == "channels":
                 url = f"https://tgstat.ru/channels"
